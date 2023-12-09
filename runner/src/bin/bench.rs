@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{env, time::Duration};
 
 use gag::Gag;
 use took::{Timer, Took};
@@ -6,11 +6,32 @@ use took::{Timer, Took};
 const RUNS: usize = 1;
 
 fn main() {
-    println!("Benchmarking all days with {} runs...", RUNS);
+    let args: Vec<_> = env::args()
+        .skip(1)
+        .map(|s| s.parse::<usize>().expect("Invalid test number"))
+        .collect();
+
+    let jobs: Vec<&runner::Job> = if args.is_empty() {
+        runner::jobs().iter().collect()
+    } else {
+        runner::jobs()
+            .iter()
+            .enumerate()
+            .filter_map(|(idx, j)| {
+                if args.contains(&((idx + 2) / 2)) {
+                    Some(j)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    };
+
+    println!("Benchmarking {} days with {} runs...", jobs.len() / 2, RUNS);
     let print_gag = Gag::stdout().unwrap();
 
-    let times: Vec<_> = runner::jobs()
-        .into_iter()
+    let times: Vec<_> = jobs
+        .iter()
         .map(|(j, n, i)| {
             (
                 n,

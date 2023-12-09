@@ -1,4 +1,5 @@
-pub fn jobs() -> &'static [(fn(&str), &'static str, &'static str)] {
+pub type Job = (fn(&str), &'static str, &'static str);
+pub fn jobs() -> &'static [Job] {
     &[
         (
             day_01::pt_1,
