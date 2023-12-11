@@ -7,3 +7,4 @@ edition = "2021"
 path = "src/solutions.rs"
 
 [dependencies]
+itertools = "0.12.0"
