@@ -7,4 +7,4 @@ edition = "2021"
 path = "src/solutions.rs"
 
 [dependencies]
-memoize = "0.4.1"
+memoize = {git = "https://github.com/dermesser/memoize"} # "0.4.1"
