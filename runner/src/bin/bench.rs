@@ -50,9 +50,17 @@ fn main() {
 
     times.iter().for_each(|t| Took::from_std(t.1).describe(t.0));
     let time_taken = times.into_iter().map(|(_, t)| t).sum();
-    println!(
-        "Tests took {}. Time remaining is {}",
-        Took::from_std(time_taken),
-        Took::from_std(Duration::new(1, 0) - time_taken)
-    );
+    if time_taken < Duration::new(1, 0) {
+        println!(
+            "Tests took {}. Time remaining is {}",
+            Took::from_std(time_taken),
+            Took::from_std(Duration::new(1, 0) - time_taken)
+        );
+    } else {
+        println!(
+            "Tests took {}. Over time budget by {}",
+            Took::from_std(time_taken),
+            Took::from_std(time_taken - Duration::new(1, 0))
+        );
+    }
 }
