@@ -1,5 +1,5 @@
+#![allow(unused_mut)]
 use memoize::memoize;
-use std::vec;
 
 pub fn pt_1(str_input: &str) {
     let lines: Vec<(Vec<_>, Vec<usize>)> = str_input

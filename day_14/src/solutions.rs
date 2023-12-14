@@ -1,3 +1,4 @@
+#[allow(clippy::needless_range_loop)]
 pub fn pt_1(str_input: &str) {
     let mut map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
     let h = map.len();
@@ -32,16 +33,17 @@ pub fn pt_1(str_input: &str) {
     println!("Part 1 result: {}", sum)
 }
 
-fn print_map(dir: &str, map: &[Vec<char>]) {
-    println!("===={dir}====",);
-    for (l, line) in map.iter().enumerate() {
-        for (c, char) in line.iter().enumerate() {
-            print!("{char}")
-        }
-        println!()
-    }
-}
+// fn print_map(dir: &str, map: &[Vec<char>]) {
+//     println!("===={dir}====",);
+//     for (l, line) in map.iter().enumerate() {
+//         for (c, char) in line.iter().enumerate() {
+//             print!("{char}")
+//         }
+//         println!()
+//     }
+// }
 
+#[allow(clippy::needless_range_loop)]
 pub fn pt_2(str_input: &str) {
     let mut previous_maps: Vec<Vec<Vec<char>>> = vec![];
     let mut map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
@@ -51,7 +53,7 @@ pub fn pt_2(str_input: &str) {
     let mut solve_idx = 0;
 
     'bigloop: for i in 0..1_000_000_000 {
-        let mut roundcount = 0;
+        let mut roundcount;
         for col in 0..w {
             roundcount = 0;
             for line in (0..h).rev() {
