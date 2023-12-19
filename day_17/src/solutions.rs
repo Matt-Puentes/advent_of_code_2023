@@ -100,6 +100,7 @@ impl Pos {
     }
 }
 
+#[allow(dead_code)]
 fn print_map(path: &[Pos], h: usize, w: usize) {
     for l in 0..h {
         'char: for c in 0..w {
@@ -139,8 +140,6 @@ pub fn pt_1(str_input: &str) {
         panic!("No path found!")
     };
 
-    print_map(&_path, h, w);
-
     println!("Part 1 result: {}", cost)
 }
 
@@ -156,7 +155,7 @@ pub fn pt_2(str_input: &str) {
     let Some((_path, cost)) = astar(
         &Pos(0, 0, Dir::None),
         |p| p.successors_pt2(&map, h, w),
-        |p| map[p.0][p.1] as usize + p.distance(&goal),
+        |p| map[p.0][p.1] as usize + p.distance(&goal) + p.0 % 4 + p.1 % 4,
         |p| p.0 == (h - 1) && p.1 == (w - 1) && match p.2 {
             Dir::None => false,
             Dir::N(c) | Dir::S(c) | Dir::E(c) | Dir::W(c) =>  c >= 3
@@ -164,8 +163,6 @@ pub fn pt_2(str_input: &str) {
     ) else {
         panic!("No path found!")
     };
-    println!("{:?}", _path);
-    print_map(&_path, h, w);
 
     println!("Part 2 result: {}", cost)
 }
