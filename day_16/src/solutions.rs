@@ -1,5 +1,4 @@
 use core::fmt;
-use std::ops::{Add, Index};
 
 #[derive(PartialEq)]
 enum Tile {
@@ -41,17 +40,6 @@ enum Dir {
     S = 1,
     E = 2,
     W = 3,
-}
-
-impl Dir {
-    fn val(&self) -> (isize, isize) {
-        match *self {
-            Dir::N => (-1, 0),
-            Dir::S => (1, 0),
-            Dir::E => (0, 1),
-            Dir::W => (0, -1),
-        }
-    }
 }
 
 #[derive(Clone, Debug)]
