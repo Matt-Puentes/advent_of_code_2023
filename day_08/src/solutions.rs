@@ -16,14 +16,12 @@ pub fn pt_1(str_input: &str) {
 
     let mut pointer: &str = "AAA";
 
-    println!("Map {map:?}");
     for (idx, side) in instructions.iter().cycle().enumerate() {
         if *side {
             pointer = map[pointer].1
         } else {
             pointer = map[pointer].0
         }
-        println!("Key {pointer}");
         if pointer == "ZZZ" {
             println!("Part 1 result: {}", idx + 1);
             break;
