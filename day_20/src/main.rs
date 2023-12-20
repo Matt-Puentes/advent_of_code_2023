@@ -13,6 +13,8 @@ pub fn parse_args() -> Test<'static> {
     let text = if args.len() > 2 {
         if args[2].eq("example") {
             include_str!("../example.txt")
+        } else if args[2].eq("example2") {
+            include_str!("../example2.txt")
         } else {
             panic!("second argument can only be 'example'")
         }
