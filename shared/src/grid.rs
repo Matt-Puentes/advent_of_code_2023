@@ -1,8 +1,62 @@
-use std::ops::{Index, IndexMut};
+use std::{
+    fmt::{Debug, Display},
+    ops::{Index, IndexMut},
+};
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, PartialOrd, Hash)]
 // Line, Col
 pub struct Pos(pub usize, pub usize);
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug, PartialOrd, Hash)]
+// Line, Col
+pub struct IPos(pub i32, pub i32);
+
+impl From<Pos> for IPos {
+    fn from(value: Pos) -> Self {
+        IPos(value.0 as i32, value.1 as i32)
+    }
+}
+
+impl Display for Pos {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({},{})", self.0, self.1)
+    }
+}
+
+impl Ord for Pos {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        (self.0 + self.1).cmp(&(other.0 + other.1))
+    }
+
+    fn max(self, other: Self) -> Self
+    where
+        Self: Sized,
+    {
+        std::cmp::max_by(self, other, Ord::cmp)
+    }
+
+    fn min(self, other: Self) -> Self
+    where
+        Self: Sized,
+    {
+        std::cmp::min_by(self, other, Ord::cmp)
+    }
+
+    fn clamp(self, min: Self, max: Self) -> Self
+    where
+        Self: Sized,
+        Self: PartialOrd,
+    {
+        assert!(min <= max);
+        if self < min {
+            min
+        } else if self > max {
+            max
+        } else {
+            self
+        }
+    }
+}
 
 impl From<(usize, usize)> for Pos {
     fn from(value: (usize, usize)) -> Self {
@@ -156,6 +210,24 @@ pub struct Grid<T> {
     pub width: usize,
 }
 
+impl<T> Grid<T>
+where
+    T: Display,
+{
+    pub fn print_grid(&self, marked_spots: &[Pos], marker_value: char) {
+        for l in 0..self.height {
+            for c in 0..self.width {
+                if marked_spots.contains(&Pos(l, c)) {
+                    print!("{}", marker_value)
+                } else {
+                    print!("{}", self[(l, c)])
+                }
+            }
+            println!()
+        }
+    }
+}
+
 impl<T> IntoIterator for Grid<T> {
     type Item = T;
     type IntoIter = std::vec::IntoIter<T>;
@@ -169,6 +241,27 @@ impl<T> Grid<T> {
     #[inline]
     pub fn iter(&self) -> std::slice::Iter<'_, T> {
         self.grid.iter()
+    }
+
+    #[inline]
+    pub fn iter_pos(&self) -> impl Iterator<Item = (Pos, &T)> + '_ {
+        self.grid
+            .iter()
+            .enumerate()
+            .map(|(i, t)| (self.idx_to_pos(i), t))
+    }
+
+    #[inline]
+    pub fn iter_mut(&mut self) -> std::slice::Iter<'_, T> {
+        self.grid.iter()
+    }
+
+    #[inline]
+    pub fn iter_pos_mut(&mut self) -> impl Iterator<Item = (Pos, &mut T)> + '_ {
+        self.grid
+            .iter_mut()
+            .enumerate()
+            .map(|(i, t)| (Pos(i / self.width, i % self.width), t))
     }
 
     #[inline(always)]
@@ -216,6 +309,20 @@ impl<T> Grid<T> {
     }
 
     #[inline(always)]
+    pub fn ipos_neighbor(&self, pos: &IPos, dir: &Dir) -> Option<Pos> {
+        use Dir::*;
+        match dir {
+            U if pos.0 > 0 => Some(Pos((pos.0 - 1) as usize, pos.1 as usize)),
+            D if pos.0 < (self.height as i32) - 1 => {
+                Some(Pos((pos.0 + 1) as usize, pos.1 as usize))
+            }
+            L if pos.1 > 0 => Some(Pos(pos.0 as usize, (pos.1 - 1) as usize)),
+            R if pos.1 < (self.width as i32) - 1 => Some(Pos(pos.0 as usize, (pos.1 + 1) as usize)),
+            _ => None,
+        }
+    }
+
+    #[inline(always)]
     pub fn neighbor_diag(&self, pos: &Pos, dir: &DiagDir) -> Option<Pos> {
         match dir {
             DiagDir::UL if pos.0 > 0 && pos.1 > 0 => Some(Pos(pos.0 - 1, pos.1 - 1)),
@@ -240,11 +347,36 @@ impl<T> Grid<T> {
     }
 
     #[inline(always)]
+    pub fn neighbors_iter(&self, pos: Pos) -> impl Iterator<Item = Pos> + '_ {
+        DIRS.iter().filter_map(move |dir| self.neighbor(&pos, dir))
+    }
+
+    #[inline(always)]
+    pub fn ipos_neighbors(&self, pos: IPos) -> Vec<Pos> {
+        DIRS.iter()
+            .filter_map(|dir| self.ipos_neighbor(&pos, dir))
+            .collect()
+    }
+
+    #[inline(always)]
+    pub fn ipos_neighbors_iter(&self, pos: IPos) -> impl Iterator<Item = Pos> + '_ {
+        DIRS.iter()
+            .filter_map(move |dir| self.ipos_neighbor(&pos, dir))
+    }
+
+    #[inline(always)]
     pub fn diag_neighbors(&self, pos: Pos) -> Vec<Pos> {
         DIAG_DIRS
             .iter()
             .filter_map(|dir| self.neighbor_diag(&pos, dir))
             .collect()
+    }
+
+    #[inline(always)]
+    pub fn diag_neighbors_iter(&self, pos: Pos) -> impl Iterator<Item = Pos> + '_ {
+        DIAG_DIRS
+            .iter()
+            .filter_map(move |dir| self.neighbor_diag(&pos, dir))
     }
 }
 
@@ -279,12 +411,24 @@ impl<T> Grid<T>
 where
     T: PartialEq,
 {
-    pub fn find(&self, obj: &T) -> Option<(usize, &T)> {
-        self.grid.iter().enumerate().find(|(_i, t)| *t == obj)
+    pub fn find(&self, obj: &T) -> Option<(Pos, &T)> {
+        if let Some((idx, t)) = self.grid.iter().enumerate().find(|(_i, t)| *t == obj) {
+            Some((self.idx_to_pos(idx), t))
+        } else {
+            None
+        }
     }
 }
 
 impl<T> Grid<T> {
+    #[inline(always)]
+    pub fn idx_to_pos(&self, val: usize) -> Pos {
+        Pos(val / self.width, val % self.width)
+    }
+    #[inline(always)]
+    pub fn pos_to_idx(&self, val: Pos) -> usize {
+        val.0 * self.width + val.1
+    }
     pub fn get(&self, line: usize, col: usize) -> &T {
         &self.grid[line * self.width + col]
     }
