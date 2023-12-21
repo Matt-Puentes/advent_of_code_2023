@@ -1,9 +1,10 @@
+use shared::Solution;
 static PD: [char; 4] = ['|', '7', 'F', 'S'];
 static PU: [char; 4] = ['|', 'J', 'L', 'S'];
 static PL: [char; 4] = ['-', 'J', '7', 'S'];
 static PR: [char; 4] = ['-', 'L', 'F', 'S'];
 
-pub fn pt_1(str_input: &str) {
+pub fn pt_1(str_input: &str) -> Solution {
     let mut start_idx: (usize, usize) = (0, 0);
     let map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
     'out: for (l, line) in map.iter().enumerate() {
@@ -43,10 +44,10 @@ pub fn pt_1(str_input: &str) {
         }
     }
 
-    println!("Part 1 result: {}", (highest + 1) / 2)
+    ((highest + 1) / 2).into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let mut start: (usize, usize) = (0, 0);
     // Collect the input into a 2d matrix of chars, also search for ground
     let map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
@@ -107,5 +108,5 @@ pub fn pt_2(str_input: &str) {
             }
         }
     }
-    println!("Part 2 result: {}", sum)
+    sum.into()
 }

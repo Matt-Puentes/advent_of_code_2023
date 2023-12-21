@@ -1,4 +1,6 @@
-pub fn pt_1(str_input: &str) {
+use shared::Solution;
+
+pub fn pt_1(str_input: &str) -> Solution {
     let mut sum = 0;
     for s in str_input.lines() {
         let nums: Vec<_> = s.chars().filter(|s| s.is_numeric()).collect();
@@ -7,10 +9,10 @@ pub fn pt_1(str_input: &str) {
         num.push(*nums.last().unwrap());
         sum += num.parse::<u32>().unwrap();
     }
-    println!("Part 1 result: {}", sum)
+    sum.into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let numbers = vec![
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "one", "two", "three", "four", "five", "six",
         "seven", "eight", "nine",
@@ -36,5 +38,5 @@ pub fn pt_2(str_input: &str) {
         }
         sum += num.parse::<u32>().unwrap();
     }
-    println!("Part 2 result: {}", sum)
+    sum.into()
 }

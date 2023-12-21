@@ -1,4 +1,5 @@
-pub fn pt_1(str_input: &str) {
+use shared::Solution;
+pub fn pt_1(str_input: &str) -> Solution {
     let sum = str_input
         .lines()
         .map(|hist| {
@@ -23,11 +24,10 @@ pub fn pt_1(str_input: &str) {
             ends.iter().sum::<i32>()
         })
         .sum::<i32>();
-
-    println!("Part 1 result: {}", sum)
+    sum.into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let sum = str_input
         .lines()
         .map(|hist| {
@@ -54,5 +54,5 @@ pub fn pt_2(str_input: &str) {
         })
         .sum::<i32>();
 
-    println!("Part 2 result: {}", sum)
+    sum.into()
 }

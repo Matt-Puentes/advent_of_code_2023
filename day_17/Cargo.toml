@@ -8,3 +8,4 @@ path = "src/solutions.rs"
 
 [dependencies]
 pathfinding = "4.2.0"
+shared = { path = "../shared" }

@@ -7,3 +7,4 @@ edition = "2021"
 path = "src/solutions.rs"
 
 [dependencies]
+shared = { path = "../shared" }

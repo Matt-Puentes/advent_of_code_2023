@@ -1,3 +1,4 @@
+use shared::Solution;
 enum RuleResult<'a> {
     Rule(&'a str),
     Accept,
@@ -49,7 +50,7 @@ impl<'a> Rule<'a> {
     }
 }
 
-pub fn pt_1(str_input: &str) {
+pub fn pt_1(str_input: &str) -> Solution {
     let (rule_str, shapes) = str_input.split_once("\n\n").unwrap();
     let rules: Vec<(&str, Vec<Rule>)> = rule_str
         .lines()
@@ -112,10 +113,10 @@ pub fn pt_1(str_input: &str) {
         }
     }
 
-    println!("Part 1 result: {}", sum)
+    sum.into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let (rule_str, _) = str_input.split_once("\n\n").unwrap();
     let rules: Vec<(&str, Vec<Rule>)> = rule_str
         .lines()
@@ -144,7 +145,9 @@ pub fn pt_2(str_input: &str) {
     let mut sum: usize = 0;
     let mut process_queue: Vec<(&str, Remain)> = vec![("in", [(1, 4000); 4])];
     loop {
-        let Some((name, mut remainders)) = process_queue.pop() else { break };
+        let Some((name, mut remainders)) = process_queue.pop() else {
+            break;
+        };
 
         let (_, rules) = rules.iter().find(|r| r.0 == name).expect("rule");
 
@@ -204,5 +207,5 @@ pub fn pt_2(str_input: &str) {
         }
     }
 
-    println!("Part 2 result: {}", sum)
+    sum.into()
 }

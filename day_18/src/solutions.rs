@@ -1,4 +1,5 @@
-pub fn pt_1(str_input: &str) {
+use shared::Solution;
+pub fn pt_1(str_input: &str) -> Solution {
     // Line, col
     let mut cursor: (i32, i32) = (0, 0);
     let mut sum: i32 = 0;
@@ -23,10 +24,10 @@ pub fn pt_1(str_input: &str) {
         cursor = new_pos;
     }
 
-    println!("Part 1 result: {}", sum + (perimeter as i32 / 2) + 1)
+    (sum + (perimeter as i32 / 2) + 1).into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     // Line, col
     let mut cursor: (i64, i64) = (0, 0);
     let mut sum: i64 = 0;
@@ -53,5 +54,5 @@ pub fn pt_2(str_input: &str) {
         cursor = new_pos;
     }
 
-    println!("Part 2 result: {}", sum + (perimeter as i64 / 2) + 1)
+    (sum + (perimeter as i64 / 2) + 1).into()
 }

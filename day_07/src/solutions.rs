@@ -1,3 +1,4 @@
+use shared::Solution;
 #[derive(PartialEq, PartialOrd, Debug)]
 enum HandType {
     HighCard,  // 5 type (1,1,1,1,1)
@@ -9,7 +10,7 @@ enum HandType {
     FiveKind,  // 1 type (5)
 }
 
-pub fn pt_1(str_input: &str) {
+pub fn pt_1(str_input: &str) -> Solution {
     // To prevent reallocation, declare it here and just clear it each loop
     // let mut counts: HashMap<u32, usize> = HashMap::new();
     let mut hands: Vec<(HandType, [u32; 5], u32)> = str_input
@@ -70,10 +71,10 @@ pub fn pt_1(str_input: &str) {
         .map(|(r, (_, _, b))| (((r as u32) + 1) * *b))
         .sum();
 
-    println!("Part 1 result: {}", sum)
+    sum.into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     // Parse the hand types, hand cards, and bids.
     let mut hands: Vec<(HandType, [u32; 5], u32)> = str_input
         .lines()
@@ -149,5 +150,5 @@ pub fn pt_2(str_input: &str) {
         .map(|(r, (_, _, b))| (((r as u32) + 1) * *b))
         .sum();
 
-    println!("Part 2 result: {}", sum)
+    sum.into()
 }

@@ -1,5 +1,6 @@
 use itertools::Itertools;
-pub fn pt_1(str_input: &str) {
+use shared::Solution;
+pub fn pt_1(str_input: &str) -> Solution {
     let mut stars = vec![];
 
     let map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
@@ -33,10 +34,10 @@ pub fn pt_1(str_input: &str) {
         sum += lc1.abs_diff(lc2) + cc1.abs_diff(cc2);
     }
 
-    println!("Part 1 result: {}", sum)
+    sum.into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let mut stars = vec![];
 
     let map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
@@ -70,5 +71,5 @@ pub fn pt_2(str_input: &str) {
         sum += 999_999 * lc1.abs_diff(lc2) + 999_999 * cc1.abs_diff(cc2);
     }
 
-    println!("Part 2 result: {}", sum)
+    sum.into()
 }

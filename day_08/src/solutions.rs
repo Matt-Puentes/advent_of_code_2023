@@ -1,6 +1,7 @@
+use shared::Solution;
 use std::{collections::HashMap, vec};
 
-pub fn pt_1(str_input: &str) {
+pub fn pt_1(str_input: &str) -> Solution {
     let (instruction_str, map_str) = str_input.split_once("\n\n").unwrap();
     // Right == true
     let instructions: Vec<bool> = instruction_str.chars().map(|s| s == 'R').collect();
@@ -23,10 +24,10 @@ pub fn pt_1(str_input: &str) {
             pointer = map[pointer].0
         }
         if pointer == "ZZZ" {
-            println!("Part 1 result: {}", idx + 1);
-            break;
+            return (idx + 1).into();
         }
     }
+    panic!()
 }
 
 fn gcd(i: &u64, o: &u64) -> u64 {
@@ -64,7 +65,7 @@ fn lcm(i: &u64, o: &u64) -> u64 {
     *i * (*o / gcd)
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let (instruction_str, map_str) = str_input.split_once("\n\n").unwrap();
     let instructions: Vec<bool> = instruction_str.chars().map(|s| s == 'R').collect();
 
@@ -106,5 +107,5 @@ pub fn pt_2(str_input: &str) {
         idxs.clear();
     }
     let res: u64 = cycle_lens.iter().fold(1, |acc, i| lcm(&acc, i));
-    println!("Part 2 result: {:?}", res);
+    res.into()
 }

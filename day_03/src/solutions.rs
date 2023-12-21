@@ -1,4 +1,6 @@
-pub fn pt_1(str_input: &str) {
+use shared::Solution;
+
+pub fn pt_1(str_input: &str) -> Solution {
     let mut symbols: Vec<(usize, usize)> = vec![];
     let mut numbers: Vec<((usize, usize), usize, i32)> = vec![];
     for (lnum, line) in str_input.lines().enumerate() {
@@ -37,10 +39,10 @@ pub fn pt_1(str_input: &str) {
         })
         .collect::<Vec<_>>();
 
-    println!("Part 1 result: {:?}", res.iter().sum::<i32>())
+    res.iter().sum::<i32>().into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let mut symbols: Vec<(usize, usize)> = vec![];
     let mut numbers: Vec<((usize, usize), usize, i32)> = vec![];
     for (lnum, line) in str_input.lines().enumerate() {
@@ -50,6 +52,7 @@ pub fn pt_2(str_input: &str) {
         while cnum < chars.len() {
             match chars[cnum] {
                 '.' => (),
+                '*' => symbols.push((lnum, cnum)),
                 c if c.is_numeric() => {
                     numbuf.push(c);
                     if cnum + 1 == chars.len() || !chars[cnum + 1].is_numeric() {
@@ -59,7 +62,6 @@ pub fn pt_2(str_input: &str) {
                         numbuf.clear()
                     }
                 }
-                symbol if symbol == '*' => symbols.push((lnum, cnum)),
                 _ => (),
             }
             cnum += 1;
@@ -86,5 +88,5 @@ pub fn pt_2(str_input: &str) {
         })
         .sum::<i32>();
 
-    println!("Part 2 result: {}", res)
+    res.into()
 }

@@ -1,4 +1,5 @@
-pub fn pt_1(str_input: &str) {
+use shared::Solution;
+pub fn pt_1(str_input: &str) -> Solution {
     // Read in the eight "blocks" of text
     let [seed_str, se_so, so_fe, fe_wa, wa_li, li_te, te_hu, hu_lo]: [&str; 8] = str_input
         .split("\n\n")
@@ -6,20 +7,24 @@ pub fn pt_1(str_input: &str) {
         .try_into()
         .unwrap();
     // Turn the seed text into seed values
-    let mut seeds: Vec<u64> = seed_str[7..]
+    let mut seeds: Vec<u32> = seed_str[7..]
         .split(' ')
         .map(|s| s.parse().unwrap())
         .collect();
     // Parse each map as tuples of (dest start, src start, len)
-    let maps: Vec<Vec<(u64, u64, u64)>> = vec![se_so, so_fe, fe_wa, wa_li, li_te, te_hu, hu_lo]
+    let maps: Vec<Vec<(u32, u32, u32)>> = vec![se_so, so_fe, fe_wa, wa_li, li_te, te_hu, hu_lo]
         .into_iter()
         .map(|ms| {
             let (_title, map) = ms.split_once(":\n").unwrap();
             map.lines()
                 .map(|s| {
-                    let [ds, ss, r] = s.split(' ')
-                        .map(|s| s.parse::<u64>().unwrap())
-                        .collect::<Vec<_>>()[..3] else {panic!("more than 3 numbers in range")};
+                    let [ds, ss, r] = s
+                        .split(' ')
+                        .map(|s| s.parse::<u32>().unwrap())
+                        .collect::<Vec<_>>()[..3]
+                    else {
+                        panic!("more than 3 numbers in range")
+                    };
                     (ds, ss, r)
                 })
                 .collect()
@@ -39,10 +44,11 @@ pub fn pt_1(str_input: &str) {
             }
         }
     }
-    println!("Part 1 result: {:?}", seeds.iter().min())
+    let res = *seeds.iter().min().unwrap();
+    res.into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     // Read in the eight "blocks" of text
     let [seed_str, se_so, so_fe, fe_wa, wa_li, li_te, te_hu, hu_lo]: [&str; 8] = str_input
         .split("\n\n")
@@ -50,23 +56,27 @@ pub fn pt_2(str_input: &str) {
         .try_into()
         .unwrap();
     // Turn the seed text into ranges of seed values
-    let mut seed_ranges: Vec<(u64, u64)> = seed_str[7..]
+    let mut seed_ranges: Vec<(u32, u32)> = seed_str[7..]
         .split(' ')
-        .map(|s| s.parse::<u64>().unwrap())
+        .map(|s| s.parse::<u32>().unwrap())
         .collect::<Vec<_>>()
         .chunks_exact(2)
         .map(|s| (s[0], s[1]))
         .collect();
     // Parse each map as tuples of (dest start, src start, len)
-    let maps: Vec<Vec<(u64, u64, u64)>> = vec![se_so, so_fe, fe_wa, wa_li, li_te, te_hu, hu_lo]
+    let maps: Vec<Vec<(u32, u32, u32)>> = vec![se_so, so_fe, fe_wa, wa_li, li_te, te_hu, hu_lo]
         .into_iter()
         .map(|ms| {
             let (_title, map) = ms.split_once(":\n").unwrap();
             map.lines()
                 .map(|s| {
-                    let [ds, ss, r] = s.split(' ')
-                        .map(|s| s.parse::<u64>().unwrap())
-                        .collect::<Vec<_>>()[..3] else {panic!("more than 3 numbers in range")};
+                    let [ds, ss, r] = s
+                        .split(' ')
+                        .map(|s| s.parse::<u32>().unwrap())
+                        .collect::<Vec<_>>()[..3]
+                    else {
+                        panic!("more than 3 numbers in range")
+                    };
                     (ds, ss, r)
                 })
                 .collect()
@@ -75,11 +85,10 @@ pub fn pt_2(str_input: &str) {
 
     // One map at a time
     for map in maps.into_iter() {
-        let mut parsed_ranges: Vec<(u64, u64)> = vec![];
+        let mut parsed_ranges: Vec<(u32, u32)> = vec![];
         // For each seed
-        'seed_range: while !seed_ranges.is_empty() {
-            // Seed range start, seed range len, seed range end.
-            let (sr_s, sr_l) = seed_ranges.pop().unwrap();
+        // Seed range start, seed range len, seed range end.
+        'seed_range: while let Some((sr_s, sr_l)) = seed_ranges.pop() {
             let sr_e = sr_s + (sr_l - 1);
 
             // For each range, check if it matches the string
@@ -110,8 +119,10 @@ pub fn pt_2(str_input: &str) {
         seed_ranges = parsed_ranges.clone();
         parsed_ranges.clear();
     }
-    println!(
-        "Part 2 result: {:?}",
-        seed_ranges.into_iter().map(|(s, _r)| s).min()
-    )
+    seed_ranges
+        .into_iter()
+        .map(|(s, _r)| s)
+        .min()
+        .unwrap()
+        .into()
 }

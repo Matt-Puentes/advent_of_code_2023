@@ -1,4 +1,6 @@
-pub fn pt_1(str_input: &str) {
+use shared::Solution;
+
+pub fn pt_1(str_input: &str) -> Solution {
     let mut sum = 0;
     'line: for (idx, unparsed_line) in str_input.lines().enumerate() {
         let (_, line) = unparsed_line.split_once(':').unwrap();
@@ -15,10 +17,10 @@ pub fn pt_1(str_input: &str) {
         }
         sum += idx + 1;
     }
-    println!("Part 1 result: {}", sum)
+    sum.into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let mut res = 0;
     for unparsed_line in str_input.lines() {
         let (_, line) = unparsed_line.split_once(':').unwrap();
@@ -39,10 +41,10 @@ pub fn pt_2(str_input: &str) {
         }
         res += max_counts.0 * max_counts.1 * max_counts.2
     }
-    println!("Part 2 result: {}", res)
+    res.into()
 }
 
-// pub fn pt_2(str_input: &str) {
+// pub fn pt_2(str_input: &str) -> Solution {
 //     let res = str_input
 //         .lines()
 //         .map(|unparsed_line| {

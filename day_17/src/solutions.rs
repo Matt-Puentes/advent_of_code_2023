@@ -1,4 +1,5 @@
 use pathfinding::prelude::astar;
+use shared::Solution;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 enum Dir {
@@ -122,7 +123,7 @@ fn print_map(path: &[Pos], h: usize, w: usize) {
     }
 }
 
-pub fn pt_1(str_input: &str) {
+pub fn pt_1(str_input: &str) -> Solution {
     let map: Vec<Vec<u8>> = str_input
         .lines()
         .map(|s| s.chars().map(|c| c.to_digit(10).unwrap() as u8).collect())
@@ -140,10 +141,10 @@ pub fn pt_1(str_input: &str) {
         panic!("No path found!")
     };
 
-    println!("Part 1 result: {}", cost)
+    cost.into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let map: Vec<Vec<u8>> = str_input
         .lines()
         .map(|s| s.chars().map(|c| c.to_digit(10).unwrap() as u8).collect())
@@ -156,13 +157,17 @@ pub fn pt_2(str_input: &str) {
         &Pos(0, 0, Dir::None),
         |p| p.successors_pt2(&map, h, w),
         |p| map[p.0][p.1] as usize + p.distance(&goal) + p.0 % 4 + p.1 % 4,
-        |p| p.0 == (h - 1) && p.1 == (w - 1) && match p.2 {
-            Dir::None => false,
-            Dir::N(c) | Dir::S(c) | Dir::E(c) | Dir::W(c) =>  c >= 3
+        |p| {
+            p.0 == (h - 1)
+                && p.1 == (w - 1)
+                && match p.2 {
+                    Dir::None => false,
+                    Dir::N(c) | Dir::S(c) | Dir::E(c) | Dir::W(c) => c >= 3,
+                }
         },
     ) else {
         panic!("No path found!")
     };
 
-    println!("Part 2 result: {}", cost)
+    cost.into()
 }

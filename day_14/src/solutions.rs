@@ -1,5 +1,7 @@
+use shared::Solution;
+
 #[allow(clippy::needless_range_loop)]
-pub fn pt_1(str_input: &str) {
+pub fn pt_1(str_input: &str) -> Solution {
     let mut map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
     let h = map.len();
     let w = map[0].len();
@@ -29,22 +31,22 @@ pub fn pt_1(str_input: &str) {
             sum += h - r
         }
     }
-
-    println!("Part 1 result: {}", sum)
+    sum.into()
 }
 
-// fn print_map(dir: &str, map: &[Vec<char>]) {
-//     println!("===={dir}====",);
-//     for (l, line) in map.iter().enumerate() {
-//         for (c, char) in line.iter().enumerate() {
-//             print!("{char}")
-//         }
-//         println!()
-//     }
-// }
+#[allow(dead_code, unused_variables)]
+fn print_map(dir: &str, map: &[Vec<char>]) {
+    println!("===={dir}====",);
+    for (l, line) in map.iter().enumerate() {
+        for (c, char) in line.iter().enumerate() {
+            print!("{char}")
+        }
+        println!()
+    }
+}
 
 #[allow(clippy::needless_range_loop)]
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let mut previous_maps: Vec<Vec<Vec<char>>> = vec![];
     let mut map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
     let h = map.len();
@@ -162,5 +164,5 @@ pub fn pt_2(str_input: &str) {
         }
     }
     // 101292
-    println!("Part 2 result: {}", sum)
+    sum.into()
 }

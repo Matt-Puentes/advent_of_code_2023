@@ -8,3 +8,4 @@ path = "src/solutions.rs"
 
 [dependencies]
 memoize = {git = "https://github.com/dermesser/memoize"} # "0.4.1"
+shared = { path = "../shared" }

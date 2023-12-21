@@ -1,4 +1,5 @@
-pub fn pt_1(str_input: &str) {
+use shared::Solution;
+pub fn pt_1(str_input: &str) -> Solution {
     let maps: Vec<Vec<Vec<char>>> = str_input
         .split("\n\n")
         .map(|s| s.lines().map(|s| s.chars().collect()).collect())
@@ -34,10 +35,10 @@ pub fn pt_1(str_input: &str) {
     }
 
     // 33728
-    println!("Part 1 result: {}", sum)
+    sum.into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let maps: Vec<Vec<Vec<char>>> = str_input
         .split("\n\n")
         .map(|s| s.lines().map(|s| s.chars().collect()).collect())
@@ -84,5 +85,5 @@ pub fn pt_2(str_input: &str) {
     }
 
     // 28235
-    println!("Part 2 result: {}", sum)
+    sum.into()
 }

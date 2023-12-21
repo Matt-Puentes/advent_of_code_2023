@@ -1,4 +1,5 @@
-pub fn pt_1(str_input: &str) {
+use shared::Solution;
+pub fn pt_1(str_input: &str) -> Solution {
     let instructions = str_input.split(',').map(|s| s.to_string());
     let res = instructions
         .into_iter()
@@ -10,7 +11,7 @@ pub fn pt_1(str_input: &str) {
         .sum::<u32>();
 
     //513158
-    println!("Part 1 result: {}", res)
+    res.into()
 }
 
 #[derive(Debug)]
@@ -19,7 +20,7 @@ enum Op<'a> {
     Add(&'a str, u8, u8),
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let instructions = str_input.split(',').map(|s| {
         if let Some((l, n)) = s.split_once('=') {
             Op::Add(
@@ -69,5 +70,5 @@ pub fn pt_2(str_input: &str) {
     });
 
     //200277
-    println!("Part 2 result: {}", sum)
+    sum.into()
 }

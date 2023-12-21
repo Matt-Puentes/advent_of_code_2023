@@ -275,6 +275,15 @@ where
     }
 }
 
+impl<T> Grid<T>
+where
+    T: PartialEq,
+{
+    pub fn find(&self, obj: &T) -> Option<(usize, &T)> {
+        self.grid.iter().enumerate().find(|(_i, t)| *t == obj)
+    }
+}
+
 impl<T> Grid<T> {
     pub fn get(&self, line: usize, col: usize) -> &T {
         &self.grid[line * self.width + col]

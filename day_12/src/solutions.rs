@@ -1,11 +1,14 @@
 #![allow(unused_mut)]
 use memoize::memoize;
+use shared::Solution;
 
-pub fn pt_1(str_input: &str) {
+pub fn pt_1(str_input: &str) -> Solution {
     let lines: Vec<(Vec<_>, Vec<usize>)> = str_input
         .lines()
         .map(|l| {
-            let Some((s, n)) = l.split_once(' ') else { panic!() };
+            let Some((s, n)) = l.split_once(' ') else {
+                panic!()
+            };
             (
                 s.chars().collect(),
                 n.split(',').map(|s| s.parse::<usize>().unwrap()).collect(),
@@ -20,9 +23,10 @@ pub fn pt_1(str_input: &str) {
         .sum();
 
     // 7191
-    println!("Part 1 result: {}", sum)
+    sum.into()
 }
 
+// This breaks if we run test 2 immediately after 1
 #[memoize(Ignore: springs, Ignore: nums)]
 fn recurse_find(
     springs: &[char],
@@ -35,7 +39,9 @@ fn recurse_find(
         // check if there's any unmatched springs left: 0 if true 1 if false
         return !springs.iter().skip(s_idx).any(|s| *s == '#') as usize;
     }
-    let Some(num) = nums.get(n_idx) else {panic!("nums len {} n idx {}", nums.len(), n_idx)};
+    let Some(num) = nums.get(n_idx) else {
+        panic!("nums len {} n idx {}", nums.len(), n_idx)
+    };
 
     let mut solutions = 0;
 
@@ -94,11 +100,13 @@ fn recurse_find(
     solutions
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let lines: Vec<(Vec<_>, Vec<usize>)> = str_input
         .lines()
         .map(|l| {
-            let Some((s, n)) = l.split_once(' ') else {panic!("a")};
+            let Some((s, n)) = l.split_once(' ') else {
+                panic!("a")
+            };
             let repeat = s.to_string() + "?";
             (
                 repeat
@@ -122,5 +130,5 @@ pub fn pt_2(str_input: &str) {
     }
 
     // 6512849198636
-    println!("Part 2 result: {}", sum)
+    sum.into()
 }

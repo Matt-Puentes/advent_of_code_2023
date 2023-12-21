@@ -1,7 +1,8 @@
-pub fn pt_1(str_input: &str) {
-    println!("Part 1 result: {}", str_input.len())
+use shared::Solution;
+pub fn pt_1(str_input: &str) -> Solution {
+    Solution::None
 }
 
-pub fn pt_2(str_input: &str) {
-    println!("Part 2 result: {}", str_input.len())
+pub fn pt_2(str_input: &str) -> Solution {
+    Solution::None
 }

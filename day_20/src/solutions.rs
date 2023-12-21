@@ -1,3 +1,5 @@
+use shared::math::lcm;
+use shared::Solution;
 use std::collections::VecDeque;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -30,7 +32,7 @@ impl Module {
     }
 }
 
-pub fn pt_1(str_input: &str) {
+pub fn pt_1(str_input: &str) -> Solution {
     let mut broadcast_idx = 0;
     let (mut module_names, mut modules): (Vec<&str>, Vec<Module>) = str_input
         .lines()
@@ -97,10 +99,10 @@ pub fn pt_1(str_input: &str) {
         }
     }
 
-    println!("Part 1 result: {}", counts[0] * counts[1])
+    (counts[0] * counts[1]).into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     // Find broadcast node, create vectors of module names/objects.
     let mut broadcast_idx = 0;
     let (mut module_names, mut modules): (Vec<&str>, Vec<Module>) = str_input
@@ -186,7 +188,7 @@ pub fn pt_2(str_input: &str) {
     }
 
     // Look for cycles in the graphs
-    let mut cycle_idxs = vec![];
+    let mut cycle_idxs: Vec<usize> = vec![];
     for (start_idx, end_idx, graph) in graphs {
         let mut button_press = 0;
         cycle_idxs.push('button: loop {
@@ -210,40 +212,5 @@ pub fn pt_2(str_input: &str) {
     }
 
     let res = cycle_idxs.iter().fold(1, |acc, i| lcm(&acc, i));
-    println!("Part 2 result: {res}")
-}
-
-fn gcd(i: &usize, o: &usize) -> usize {
-    // Use Stein's algorithm
-    let mut m = *i;
-    let mut n = *o;
-    if m == 0 || n == 0 {
-        return m | n;
-    }
-
-    // find common factors of 2
-    let shift = (m | n).trailing_zeros();
-
-    // divide n and m by 2 until odd
-    m >>= m.trailing_zeros();
-    n >>= n.trailing_zeros();
-
-    while m != n {
-        if m > n {
-            m -= n;
-            m >>= m.trailing_zeros();
-        } else {
-            n -= m;
-            n >>= n.trailing_zeros();
-        }
-    }
-    m << shift
-}
-
-fn lcm(i: &usize, o: &usize) -> usize {
-    if *i == 0 && *o == 0 {
-        return 0;
-    }
-    let gcd = gcd(i, o);
-    *i * (*o / gcd)
+    res.into()
 }

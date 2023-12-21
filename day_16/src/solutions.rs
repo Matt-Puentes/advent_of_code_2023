@@ -1,5 +1,6 @@
 use core::fmt;
 use shared::grid::{Dir, Grid, Pos};
+use shared::Solution;
 
 #[derive(PartialEq)]
 enum Tile {
@@ -35,7 +36,7 @@ impl From<char> for Tile {
     }
 }
 
-pub fn pt_1(str_input: &str) {
+pub fn pt_1(str_input: &str) -> Solution {
     let map: Grid<Tile> = Grid::from(str_input);
     use Tile::*;
 
@@ -102,10 +103,10 @@ pub fn pt_1(str_input: &str) {
     }
 
     let sum: usize = energy_map.into_iter().filter(|l| l.is_some()).count();
-    println!("Part 1 result: {}", sum)
+    sum.into()
 }
 
-pub fn pt_2(str_input: &str) {
+pub fn pt_2(str_input: &str) -> Solution {
     let map: Grid<Tile> = str_input.into();
 
     use Tile::*;
@@ -215,5 +216,5 @@ pub fn pt_2(str_input: &str) {
         largest = largest.max(count);
     }
 
-    println!("Part 2 result: {}", largest)
+    largest.into()
 }
