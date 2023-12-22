@@ -3,7 +3,7 @@ use std::{
     ops::{Index, IndexMut},
 };
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, PartialOrd, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 // Line, Col
 pub struct Pos(pub usize, pub usize);
 
@@ -20,6 +20,12 @@ impl From<Pos> for IPos {
 impl Display for Pos {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "({},{})", self.0, self.1)
+    }
+}
+
+impl PartialOrd for Pos {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
     }
 }
 

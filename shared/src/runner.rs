@@ -9,7 +9,8 @@ pub enum Solution<'a> {
     NumU64(u64),
     NumUsize(usize),
     Str(&'a str),
-    None,
+    // Prevents "unused variable" warning for the str_input
+    None(&'a str),
 }
 
 impl<'a> From<i32> for Solution<'a> {
@@ -56,7 +57,7 @@ impl<'a> From<&'a str> for Solution<'a> {
 impl<'a> Display for Solution<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Solution::None => write!(f, "None"),
+            Solution::None(_) => write!(f, "None"),
             Solution::Str(c) => write!(f, "{}", c),
             Solution::NumI32(c) => write!(f, "{}", c),
             Solution::NumI64(c) => write!(f, "{}", c),
