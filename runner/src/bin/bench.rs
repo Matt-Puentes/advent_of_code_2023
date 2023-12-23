@@ -1,6 +1,4 @@
 use std::{env, time::Duration};
-
-use gag::Gag;
 use took::{Timer, Took};
 
 const RUNS: usize = 1;
@@ -28,7 +26,6 @@ fn main() {
     };
 
     println!("Benchmarking {} days with {} runs...", jobs.len() / 2, RUNS);
-    let print_gag = Gag::stdout().unwrap();
 
     let times: Vec<_> = jobs
         .iter()
@@ -46,9 +43,11 @@ fn main() {
             )
         })
         .collect();
-    drop(print_gag);
 
     times.iter().for_each(|t| Took::from_std(t.1).describe(t.0));
+    // times
+    //     .iter()
+    //     .for_each(|t| println!("{}: {}", t.0, t.1.as_secs_f64()));
     let time_taken = times.into_iter().map(|(_, t)| t).sum();
     if time_taken < Duration::new(1, 0) {
         println!(
