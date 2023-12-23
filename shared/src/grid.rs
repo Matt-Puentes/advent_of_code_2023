@@ -171,15 +171,78 @@ impl Pos {
             _ => None,
         }
     }
+
+    pub fn distance(&self, other: &Pos) -> usize {
+        self.0.abs_diff(other.0) + self.1.abs_diff(other.1)
+    }
+
+    pub fn range(&self, other: &Pos) -> impl Iterator<Item = Pos> {
+        if self.0 <= other.0 {
+            Box::new(self.0..other.0) as Box<dyn Iterator<Item = _>>
+        } else {
+            Box::new((other.0..self.0).rev()) as Box<dyn Iterator<Item = _>>
+        }
+        .zip(if self.1 <= other.1 {
+            Box::new(self.1..other.1) as Box<dyn Iterator<Item = _>>
+        } else {
+            Box::new((other.1..self.1).rev()) as Box<dyn Iterator<Item = _>>
+        })
+        .map(|(p1, p2)| Pos(p1, p2))
+    }
 }
 
 // Up, Down, Left, Right
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Debug)]
 pub enum Dir {
     U,
     D,
     L,
     R,
+}
+
+impl Dir {
+    pub fn rotr(self) -> Self {
+        match self {
+            Dir::U => Dir::R,
+            Dir::D => Dir::L,
+            Dir::L => Dir::U,
+            Dir::R => Dir::D,
+        }
+    }
+
+    pub fn rotl(self) -> Self {
+        match self {
+            Dir::U => Dir::L,
+            Dir::D => Dir::R,
+            Dir::L => Dir::D,
+            Dir::R => Dir::U,
+        }
+    }
+
+    pub fn flip(self) -> Self {
+        match self {
+            Dir::U => Dir::D,
+            Dir::D => Dir::U,
+            Dir::L => Dir::R,
+            Dir::R => Dir::L,
+        }
+    }
+
+    pub fn vertical(&self) -> bool {
+        match self {
+            Dir::U | Dir::D => true,
+            Dir::R | Dir::L => false,
+        }
+    }
+
+    pub fn val(self) -> (i8, i8) {
+        match self {
+            Dir::U => (-1, 0),
+            Dir::D => (1, 0),
+            Dir::L => (0, -1),
+            Dir::R => (0, 1),
+        }
+    }
 }
 
 const DIRS: [Dir; 4] = [Dir::U, Dir::D, Dir::L, Dir::R];
@@ -244,6 +307,10 @@ impl<T> IntoIterator for Grid<T> {
 }
 
 impl<T> Grid<T> {
+    pub fn lines(&self) -> std::slice::ChunksExact<T> {
+        self.grid.chunks_exact(self.width)
+    }
+
     #[inline]
     pub fn iter(&self) -> std::slice::Iter<'_, T> {
         self.grid.iter()
@@ -315,6 +382,23 @@ impl<T> Grid<T> {
     }
 
     #[inline(always)]
+    pub fn go(&self, pos: &Pos, magnitude: usize, dir: &Dir) -> Option<Pos> {
+        use Dir::*;
+        match dir {
+            U if pos.0 > magnitude - 1 => Some(Pos(pos.0 - magnitude, pos.1)),
+            D if pos.0 < self.height - magnitude => Some(Pos(pos.0 + magnitude, pos.1)),
+            L if pos.1 > magnitude - 1 => Some(Pos(pos.0, pos.1 - magnitude)),
+            R if pos.1 < self.width - magnitude => Some(Pos(pos.0, pos.1 + magnitude)),
+            _ => None,
+        }
+    }
+
+    pub fn range(&self, dir: &Dir, pos: &Pos, len: usize) -> Option<impl Iterator<Item = &T>> {
+        self.go(pos, len, dir)
+            .map(|other_pos| pos.range(&other_pos).map(|p| &self[p]))
+    }
+
+    #[inline(always)]
     pub fn ipos_neighbor(&self, pos: &IPos, dir: &Dir) -> Option<Pos> {
         use Dir::*;
         match dir {
@@ -346,10 +430,22 @@ impl<T> Grid<T> {
     }
 
     #[inline(always)]
+    /// Returns the valid neighbors in the order Up, Down, Left, Right
     pub fn neighbors(&self, pos: Pos) -> Vec<Pos> {
         DIRS.iter()
             .filter_map(|dir| self.neighbor(&pos, dir))
             .collect()
+    }
+
+    #[inline(always)]
+    /// Returns the valid neighbors in the order Up, Down, Left, Right
+    pub fn all_neighbors(&self, pos: Pos) -> [Option<Pos>; 4] {
+        [
+            self.neighbor(&pos, &DIRS[0]),
+            self.neighbor(&pos, &DIRS[1]),
+            self.neighbor(&pos, &DIRS[2]),
+            self.neighbor(&pos, &DIRS[3]),
+        ]
     }
 
     #[inline(always)]
@@ -371,11 +467,27 @@ impl<T> Grid<T> {
     }
 
     #[inline(always)]
+    /// Returns the valid neighbors from top left to bottom right
     pub fn diag_neighbors(&self, pos: Pos) -> Vec<Pos> {
         DIAG_DIRS
             .iter()
             .filter_map(|dir| self.neighbor_diag(&pos, dir))
             .collect()
+    }
+
+    #[inline(always)]
+    /// Returns the valid neighbors in the order Up, Down, Left, Right
+    pub fn all_diag_neighbors(&self, pos: Pos) -> [Option<Pos>; 8] {
+        [
+            self.neighbor_diag(&pos, &DIAG_DIRS[0]),
+            self.neighbor_diag(&pos, &DIAG_DIRS[0]),
+            self.neighbor_diag(&pos, &DIAG_DIRS[0]),
+            self.neighbor_diag(&pos, &DIAG_DIRS[0]),
+            self.neighbor_diag(&pos, &DIAG_DIRS[0]),
+            self.neighbor_diag(&pos, &DIAG_DIRS[0]),
+            self.neighbor_diag(&pos, &DIAG_DIRS[0]),
+            self.neighbor_diag(&pos, &DIAG_DIRS[0]),
+        ]
     }
 
     #[inline(always)]
@@ -435,11 +547,11 @@ impl<T> Grid<T> {
     pub fn pos_to_idx(&self, val: Pos) -> usize {
         val.0 * self.width + val.1
     }
-    pub fn get(&self, line: usize, col: usize) -> &T {
-        &self.grid[line * self.width + col]
+    pub fn get(&self, line: usize, col: usize) -> Option<&T> {
+        self.grid.get(line * self.width + col)
     }
-    pub fn get_mut(&mut self, line: usize, col: usize) -> &mut T {
-        &mut self.grid[line * self.width + col]
+    pub fn get_mut(&mut self, line: usize, col: usize) -> Option<&mut T> {
+        self.grid.get_mut(line * self.width + col)
     }
 }
 
@@ -475,11 +587,27 @@ impl<T> IndexMut<Pos> for Grid<T> {
     }
 }
 
+impl<T> Grid<T> {
+    pub fn map_from(str_input: &str, f: fn(char) -> T) -> Self {
+        let map: Vec<T> = str_input.lines().fold(vec![], |mut acc, s| {
+            acc.extend(s.chars().map(f));
+            acc
+        });
+        let w = str_input.find('\n').unwrap();
+        let h = map.len() / w;
+        Grid {
+            grid: map,
+            height: h,
+            width: w,
+        }
+    }
+}
+
 impl<T> From<&str> for Grid<T>
 where
     T: From<char>,
 {
-    // Assumes every newline is evenly spaced, so the rows are the same size.
+    /// Assumes every newline is evenly spaced, so the rows are the same size.
     fn from(str_input: &str) -> Self {
         let map: Vec<T> = str_input.lines().fold(vec![], |mut acc, s| {
             acc.extend(s.chars().map(|s| s.into()));
@@ -492,5 +620,22 @@ where
             height: h,
             width: w,
         }
+    }
+}
+
+impl<'a, T: 'a> Grid<T> {
+    pub fn astar<P, FN, IN>(
+        &self,
+        start: &'a P,
+        mut successors: FN,
+        mut heuristic: impl FnMut(&'a Self, &P) -> usize,
+        mut success: impl FnMut(&'a Self, &P) -> bool,
+    ) -> Option<(Vec<P>, usize)>
+    where
+        P: Eq,
+        FN: FnMut(&'a Self, &'a P) -> IN + 'a,
+        IN: IntoIterator<Item = (P, usize)> + 'a,
+    {
+        None
     }
 }

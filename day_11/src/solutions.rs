@@ -2,10 +2,11 @@ use itertools::Itertools;
 use shared::Solution;
 pub fn pt_1(str_input: &str) -> Solution {
     let mut stars = vec![];
+    let w = str_input.find('\n').unwrap();
+    let h = str_input.chars().filter(|s| *s == '\n').count() + 1;
 
-    let map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
-    let mut line_stars = vec![false; map.len()];
-    let mut col_stars = vec![false; map[0].len()];
+    let mut line_stars = vec![false; h];
+    let mut col_stars = vec![false; w];
     for (l, line) in str_input.lines().enumerate() {
         for (c, char) in line.chars().enumerate() {
             if char == '#' {
@@ -40,9 +41,11 @@ pub fn pt_1(str_input: &str) -> Solution {
 pub fn pt_2(str_input: &str) -> Solution {
     let mut stars = vec![];
 
-    let map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
-    let mut line_stars = vec![false; map.len()];
-    let mut col_stars = vec![false; map[0].len()];
+    let w = str_input.find('\n').unwrap();
+    let h = str_input.chars().filter(|s| *s == '\n').count() + 1;
+
+    let mut line_stars = vec![false; h];
+    let mut col_stars = vec![false; w];
     for (l, line) in str_input.lines().enumerate() {
         for (c, char) in line.chars().enumerate() {
             if char == '#' {

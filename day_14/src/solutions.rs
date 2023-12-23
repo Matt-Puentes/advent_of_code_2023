@@ -1,24 +1,24 @@
-use shared::Solution;
+use shared::{grid::Grid, Solution};
 
 #[allow(clippy::needless_range_loop)]
 pub fn pt_1(str_input: &str) -> Solution {
-    let mut map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
-    let h = map.len();
-    let w = map[0].len();
+    let mut map: Grid<char> = str_input.into(); //.lines().map(|l| l.chars().collect()).collect();
+    let h = map.height;
+    let w = map.width;
 
     let mut sum = 0;
     let mut roundcount;
     for col in 0..w {
         roundcount = 0;
         for line in (0..h).rev() {
-            match map[line][col] {
+            match map[(line, col)] {
                 'O' => {
                     roundcount += 1;
-                    map[line][col] = '.'
+                    map[(line, col)] = '.'
                 }
                 '#' => {
                     for r in 1..=roundcount {
-                        map[line + r][col] = 'O';
+                        map[(line + r, col)] = 'O';
                         sum += h - (line + r)
                     }
                     roundcount = 0;
@@ -27,7 +27,7 @@ pub fn pt_1(str_input: &str) -> Solution {
             }
         }
         for r in 0..roundcount {
-            map[r][col] = 'O';
+            map[(r, col)] = 'O';
             sum += h - r
         }
     }
@@ -47,10 +47,10 @@ fn print_map(dir: &str, map: &[Vec<char>]) {
 
 #[allow(clippy::needless_range_loop)]
 pub fn pt_2(str_input: &str) -> Solution {
-    let mut previous_maps: Vec<Vec<Vec<char>>> = vec![];
-    let mut map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
-    let h = map.len();
-    let w = map[0].len();
+    let mut previous_maps: Vec<Grid<char>> = vec![];
+    let mut map: Grid<char> = str_input.into(); //.lines().map(|l| l.chars().collect()).collect();
+    let h = map.height;
+    let w = map.width;
 
     let mut solve_idx = 0;
 
@@ -59,14 +59,14 @@ pub fn pt_2(str_input: &str) -> Solution {
         for col in 0..w {
             roundcount = 0;
             for line in (0..h).rev() {
-                match map[line][col] {
+                match map[(line, col)] {
                     'O' => {
                         roundcount += 1;
-                        map[line][col] = '.'
+                        map[(line, col)] = '.'
                     }
                     '#' => {
                         for r in 1..=roundcount {
-                            map[line + r][col] = 'O';
+                            map[(line + r, col)] = 'O';
                         }
                         roundcount = 0;
                     }
@@ -74,21 +74,21 @@ pub fn pt_2(str_input: &str) -> Solution {
                 }
             }
             for r in 0..roundcount {
-                map[r][col] = 'O';
+                map[(r, col)] = 'O';
             }
         }
 
         for line in 0..h {
             roundcount = 0;
             for col in (0..w).rev() {
-                match map[line][col] {
+                match map[(line, col)] {
                     'O' => {
                         roundcount += 1;
-                        map[line][col] = '.'
+                        map[(line, col)] = '.'
                     }
                     '#' => {
                         for r in 1..=roundcount {
-                            map[line][col + r] = 'O';
+                            map[(line, col + r)] = 'O';
                         }
                         roundcount = 0;
                     }
@@ -96,21 +96,21 @@ pub fn pt_2(str_input: &str) -> Solution {
                 }
             }
             for r in 0..roundcount {
-                map[line][r] = 'O';
+                map[(line, r)] = 'O';
             }
         }
 
         for col in 0..w {
             roundcount = 0;
             for line in 0..h {
-                match map[line][col] {
+                match map[(line, col)] {
                     'O' => {
                         roundcount += 1;
-                        map[line][col] = '.'
+                        map[(line, col)] = '.'
                     }
                     '#' => {
                         for r in 1..=roundcount {
-                            map[line - r][col] = 'O';
+                            map[(line - r, col)] = 'O';
                         }
                         roundcount = 0;
                     }
@@ -118,21 +118,21 @@ pub fn pt_2(str_input: &str) -> Solution {
                 }
             }
             for r in 1..=roundcount {
-                map[h - r][col] = 'O';
+                map[(h - r, col)] = 'O';
             }
         }
 
         for line in 0..h {
             roundcount = 0;
             for col in 0..w {
-                match map[line][col] {
+                match map[(line, col)] {
                     'O' => {
                         roundcount += 1;
-                        map[line][col] = '.'
+                        map[(line, col)] = '.'
                     }
                     '#' => {
                         for r in 1..=roundcount {
-                            map[line][col - r] = 'O';
+                            map[(line, col - r)] = 'O';
                         }
                         roundcount = 0;
                     }
@@ -140,7 +140,7 @@ pub fn pt_2(str_input: &str) -> Solution {
                 }
             }
             for r in 1..=roundcount {
-                map[line][w - r] = 'O';
+                map[(line, w - r)] = 'O';
             }
         }
 
@@ -158,11 +158,12 @@ pub fn pt_2(str_input: &str) -> Solution {
     let mut sum = 0;
     for line in 0..h {
         for col in 0..w {
-            if previous_maps[solve_idx][line][col] == 'O' {
+            if previous_maps[solve_idx][(line, col)] == 'O' {
                 sum += h - line;
             }
         }
     }
+
     // 101292
     sum.into()
 }

@@ -1,46 +1,34 @@
-use shared::Solution;
+use shared::{
+    grid::{Grid, Pos},
+    Solution,
+};
 static PD: [char; 4] = ['|', '7', 'F', 'S'];
 static PU: [char; 4] = ['|', 'J', 'L', 'S'];
 static PL: [char; 4] = ['-', 'J', '7', 'S'];
 static PR: [char; 4] = ['-', 'L', 'F', 'S'];
+static ORDER: [([char; 4], [char; 4]); 4] = [(PU, PD), (PD, PU), (PL, PR), (PR, PL)];
 
 pub fn pt_1(str_input: &str) -> Solution {
-    let mut start_idx: (usize, usize) = (0, 0);
-    let map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
-    'out: for (l, line) in map.iter().enumerate() {
-        for (c, char) in line.iter().enumerate() {
-            if *char == 'S' {
-                start_idx = (l, c);
-                break 'out;
-            }
-        }
-    }
+    let map: Grid<char> = Grid::from(str_input);
+    let start_idx = map.find(&'S').unwrap().0;
 
-    // Height
-    let h = map.len();
-    // Width
-    let w = map[0].len();
-    // Visited map
-    let mut vm = vec![vec![false; w]; h];
-
-    let mut queue: Vec<((usize, usize), usize)> = vec![(start_idx, 0)];
+    let mut vm: Grid<bool> = Grid::new_default(map.height, map.width);
+    let mut queue: Vec<(Pos, usize)> = vec![(start_idx, 0)];
     let mut highest: usize = 0;
-    while let Some(((l, c), d)) = queue.pop() {
-        let char = &map[l][c];
-        highest = highest.max(d);
-        vm[l][c] = true;
 
-        if PU.contains(char) && l > 0 && PD.contains(&map[l - 1][c]) && !vm[l - 1][c] {
-            queue.push(((l - 1, c), d + 1))
-        }
-        if PD.contains(char) && l < h - 1 && PU.contains(&map[l + 1][c]) && !vm[l + 1][c] {
-            queue.push(((l + 1, c), d + 1))
-        }
-        if PL.contains(char) && c > 0 && PR.contains(&map[l][c - 1]) && !vm[l][c - 1] {
-            queue.push(((l, c - 1), d + 1))
-        }
-        if PR.contains(char) && c < w - 1 && PL.contains(&map[l][c + 1]) && !vm[l][c + 1] {
-            queue.push(((l, c + 1), d + 1))
+    while let Some((p, dist)) = queue.pop() {
+        let char = &map[p];
+        highest = highest.max(dist);
+        vm[p] = true;
+
+        // assuming up, down, left, right
+        let neighbors = map.all_neighbors(p);
+        for (i, neighbor) in neighbors.into_iter().enumerate() {
+            if let Some(n) = neighbor {
+                if ORDER[i].0.contains(char) && ORDER[i].1.contains(&map[n]) && !vm[n] {
+                    queue.push((n, dist + 1))
+                }
+            }
         }
     }
 
@@ -48,47 +36,30 @@ pub fn pt_1(str_input: &str) -> Solution {
 }
 
 pub fn pt_2(str_input: &str) -> Solution {
-    let mut start: (usize, usize) = (0, 0);
-    // Collect the input into a 2d matrix of chars, also search for ground
-    let map: Vec<Vec<char>> = str_input.lines().map(|l| l.chars().collect()).collect();
-    'out: for (l, line) in map.iter().enumerate() {
-        for (c, char) in line.iter().enumerate() {
-            if *char == 'S' {
-                start = (l, c);
-                break 'out;
+    let map: Grid<char> = Grid::from(str_input);
+    let start = map.find(&'S').unwrap().0;
+    let mut vm = Grid::new('.', map.height, map.width);
+    let mut queue: Vec<Pos> = vec![start];
+
+    while let Some(p) = queue.pop() {
+        let ch = &map[p];
+        vm[p] = *ch;
+
+        // assuming up, down, left, right
+        let neighbors = map.all_neighbors(p);
+        for (i, neighbor) in neighbors.into_iter().enumerate() {
+            if let Some(n) = neighbor {
+                if ORDER[i].0.contains(ch) && ORDER[i].1.contains(&map[n]) && vm[n] == '.' {
+                    queue.push(n)
+                }
             }
-        }
-    }
-
-    let h = map.len();
-    let w = map[0].len();
-    // Visited map
-    let mut vm = vec![vec!['.'; w]; h];
-
-    let mut queue: Vec<(usize, usize)> = vec![start];
-    while let Some((l, c)) = queue.pop() {
-        let ch = &map[l][c];
-        vm[l][c] = *ch;
-
-        // Check if the neighbor is in bounds, valid, and not already processed.
-        if l > 0 && PU.contains(ch) && PD.contains(&map[l - 1][c]) && vm[l - 1][c] == '.' {
-            queue.push((l - 1, c))
-        }
-        if l < h - 1 && PD.contains(ch) && PU.contains(&map[l + 1][c]) && vm[l + 1][c] == '.' {
-            queue.push((l + 1, c))
-        }
-        if c > 0 && PL.contains(ch) && PR.contains(&map[l][c - 1]) && vm[l][c - 1] == '.' {
-            queue.push((l, c - 1))
-        }
-        if c < w - 1 && PR.contains(ch) && PL.contains(&map[l][c + 1]) && vm[l][c + 1] == '.' {
-            queue.push((l, c + 1))
         }
     }
 
     // Count points "inside" pipes in vm by edge counting
     let mut sum = 0;
     let (mut counting, mut above, mut below);
-    for line in vm {
+    for line in vm.lines() {
         (counting, above, below) = (false, false, false);
         for c in line {
             match c {
