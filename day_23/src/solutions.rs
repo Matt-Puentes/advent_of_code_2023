@@ -1,7 +1,7 @@
-use std::{collections::VecDeque, path};
+use std::collections::VecDeque;
 
 use shared::{
-    grid::{self, Dir, Grid, Pos},
+    grid::{Dir, Grid, Pos},
     Solution,
 };
 
@@ -77,7 +77,7 @@ pub fn pt_2(str_input: &str) -> Solution {
     //     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
     //     'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
     // ];
-    let mut display_map: Grid<char> = str_input.into();
+    // let mut display_map: Grid<char> = str_input.into();
 
     // the # of the path that visited it
     let mut visited: Grid<Option<usize>> = Grid::new_default(map.width, map.height);
@@ -91,12 +91,8 @@ pub fn pt_2(str_input: &str) -> Solution {
     let mut intersections: Vec<Vec<usize>> = vec![];
     let mut intersection_coords: Vec<Pos> = vec![];
 
-    // the path idxs you can reach from the end of the current path
-    // let mut path_connections: Vec<Vec<usize>> = vec![];
-    // let mut backwards_path_connections: Vec<Vec<usize>> = vec![];
     let start_path = 0;
     let mut goal_path = 0;
-
     'walks: loop {
         let Some((prev_intersection, mut pos, mut prev_pos)) = queue.pop() else {
             break 'walks;
@@ -105,20 +101,16 @@ pub fn pt_2(str_input: &str) -> Solution {
         if let Some(new_path) = visited[pos] {
             if let Some(intersection) = prev_intersection {
                 // This path has been visited before, don't walk it, but mark the intersection it reaches
-                // println!(
-                //     "Path {} already walked, but now we know it touches intersection {}",
-                //     names[new_path], names[intersection]
-                // );
                 if !intersections[intersection].contains(&new_path) {
                     intersections[intersection].push(new_path);
                 }
             }
             continue;
         }
-
-        println!("making path {} at {pos}", paths.len());
+        // create new path
         paths.push(0);
         let path_idx = paths.len() - 1;
+        // Add path to intersection
         if let Some(intersection) = prev_intersection {
             intersections[intersection].push(path_idx)
         }
@@ -175,59 +167,18 @@ pub fn pt_2(str_input: &str) -> Solution {
         }
     }
 
-    // for each node, a vec of (other node, cost)
-    // Init with 2 empty nodes to be filled with the start/goal
-    // let node_connections: Vec<Vec<(usize, usize)>> = vec![vec![], vec![]];
-
-    // println!("map");
-    // for (i, p) in intersection_coords.iter().enumerate() {
-    //     display_map[*p] = node_names[i]
-    // }
-    // display_map.print_grid(&[Pos(0, 0)], '0');
-    // println!(
-    //     "Paths: {:?}",
-    //     paths
-    //         .iter()
-    //         .enumerate()
-    //         .map(|(i, c)| (names[i], c))
-    //         .collect::<Vec<_>>()
-    // );
-    // println!(
-    //     "Path connections: {:?}",
-    //     intersections
-    //         .iter()
-    //         .enumerate()
-    //         .map(|(i, c)| (
-    //             node_names[i],
-    //             c.iter().map(|n| names[*n]).collect::<Vec<_>>()
-    //         ))
-    //         .collect::<Vec<_>>()
-    // );
-
     // A map of nodes
     let mut nodes: Vec<Vec<(usize, usize)>> = vec![vec![], vec![]];
 
     for (ni, node) in intersections.iter().enumerate() {
-        // println!("Node {ni}: {node:?}");
         let mut connected_nodes = vec![];
-
         for connected_path in node {
-            // println!("Node {ni} is connected to path {connected_path}");
             let connected_node_idx: usize;
             if *connected_path == goal_path {
-                // nodes[0].push((ni, paths[*connected_path]));
                 connected_nodes.push((0, paths[*connected_path]));
-                // println!(
-                //     "Node {} is connected to goal with cost {}",
-                //     node_names[ni], paths[*connected_path]
-                // )
             } else if *connected_path == start_path {
                 nodes[1].push((ni + 2, paths[*connected_path]));
                 connected_nodes.push((1, paths[*connected_path]));
-                // println!(
-                //     "Node {} is connected to start with cost {}",
-                //     node_names[ni], paths[*connected_path]
-                // )
             } else {
                 // adjust for goal+start node at beginning of list
                 connected_node_idx = intersections
@@ -238,37 +189,25 @@ pub fn pt_2(str_input: &str) -> Solution {
                     .unwrap()
                     + 2;
                 connected_nodes.push((connected_node_idx, paths[*connected_path]));
-                // println!(
-                //     "Node {} is connected to {} with cost {}",
-                //     node_names[ni],
-                //     node_names[connected_node_idx - 2],
-                //     paths[*connected_path]
-                // )
             }
         }
         nodes.push(connected_nodes);
     }
 
-    // let new_node_names = [
-    //     "goal", "start", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
-    //     "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-    // ];
-    // println!(
-    //     "Nodes: {:?}",
-    //     nodes
-    //         .iter()
-    //         .enumerate()
-    //         .map(|(i, n)| (
-    //             new_node_names[i],
-    //             n.iter()
-    //                 .map(|(n, c)| (new_node_names[*n], c))
-    //                 .collect::<Vec<_>>()
-    //         ))
-    //         .collect::<Vec<_>>()
-    // );
-    // println!("Nodes: {:?}", nodes);
+    let new_node_names = [
+        "goal", "start", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+        "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+    ];
 
-    // Ok now we actually solve it
+    for (i, node) in nodes.iter().enumerate() {
+        for (n, c) in node {
+            println!("node{i} -> node{n} [label={c}]")
+        }
+    }
+
+    // Now that we've built the graph, we can run the algorithm on it.
+    // this link has an alogithm
+    // https://stackoverflow.com/a/2525353/13274599
 
     // a path has a history and a total cost
     let mut highest_cost = 0;
@@ -282,12 +221,9 @@ pub fn pt_2(str_input: &str) -> Solution {
         if path[path.len() - 1] == 0 {
             // -3 because the start node, goal node don't count towards cost,
             // plus the final path doesn't hit an intersection.
+            // println!("cost {} Path: {path:?}", cost + path.len() - 3);
+
             highest_cost = highest_cost.max(cost + path.len() - 3);
-            // println!("Complete path found with cost {}", cost + path.len() - 3);
-            // println!(
-            //     "{:?}",
-            //     path.iter().map(|p| new_node_names[*p]).collect::<Vec<_>>()
-            // )
         }
 
         // Vec<neighbor, cost>
