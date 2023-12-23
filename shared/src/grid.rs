@@ -178,14 +178,14 @@ impl Pos {
 
     pub fn range(&self, other: &Pos) -> impl Iterator<Item = Pos> {
         if self.0 <= other.0 {
-            Box::new(self.0..other.0) as Box<dyn Iterator<Item = _>>
+            Box::new(self.0..=other.0) as Box<dyn Iterator<Item = _>>
         } else {
-            Box::new((other.0..self.0).rev()) as Box<dyn Iterator<Item = _>>
+            Box::new((other.0..=self.0).rev()) as Box<dyn Iterator<Item = _>>
         }
         .zip(if self.1 <= other.1 {
-            Box::new(self.1..other.1) as Box<dyn Iterator<Item = _>>
+            Box::new(self.1..=other.1) as Box<dyn Iterator<Item = _>>
         } else {
-            Box::new((other.1..self.1).rev()) as Box<dyn Iterator<Item = _>>
+            Box::new((other.1..=self.1).rev()) as Box<dyn Iterator<Item = _>>
         })
         .map(|(p1, p2)| Pos(p1, p2))
     }
@@ -384,6 +384,8 @@ impl<T> Grid<T> {
     #[inline(always)]
     pub fn go(&self, pos: &Pos, magnitude: usize, dir: &Dir) -> Option<Pos> {
         use Dir::*;
+        // println!("{}, {}", pos, magnitude);
+        // println!("{}", pos.1 - magnitude);
         match dir {
             U if pos.0 > magnitude - 1 => Some(Pos(pos.0 - magnitude, pos.1)),
             D if pos.0 < self.height - magnitude => Some(Pos(pos.0 + magnitude, pos.1)),

@@ -21,6 +21,7 @@ impl Point {
         // Forward, right, left.
 
         // Direction moved, how much moved, cumulative how much moved
+        // println!("{d:?}, {min}");
         let neighbors: Vec<(Dir, u8, u8)> = match d {
             // Go in any direction
             None => vec![
@@ -32,21 +33,40 @@ impl Point {
             // minimum not reached, go straight
             Some((d, c)) if c < min => vec![(d, min, c + min)],
             // maximum reached, turn left or right
-            Some((d, c)) if c == max => vec![(d.rotr(), min, c + min), (d.rotl(), min, c + min)],
+            Some((d, c)) if c == max => vec![(d.rotr(), min, min), (d.rotl(), min, min)],
             // Go straight or turn left or right
             Some((d, c)) => vec![
                 (d, min, c + min),
-                (d.rotr(), min, c + min),
-                (d.rotl(), min, c + min),
+                (d.rotr(), min, min),
+                (d.rotl(), min, min),
             ],
         };
 
-        // Now we have the range function in map so i can sum up distances
+        if p.0 == 0 && p.1 == 1 {
+            println!(
+                "Neighbors for {p}: {:?}",
+                neighbors
+                    .iter()
+                    .filter(|(d, ..)| d == &Dir::R || d == &Dir::D)
+                    .filter_map(move |(dir, moved, c)| match map.neighbor(&p, &dir) {
+                        None => None,
+                        Some(p) => map
+                            .range(&dir, &p, *moved as usize)
+                            .map(|r| (Point(p, Some((*dir, *c))), r.sum::<u8>() as u16)),
+                    })
+                    .collect::<Vec<_>>()
+            );
+        }
 
-        neighbors.into_iter().filter_map(move |(dir, moved, c)| {
-            map.neighbor(&p, &dir)
-                .map(|p| (Point(p, Some((dir, c))), map[p] as u16))
-        })
+        // Now we have the range function in map so i can sum up distances
+        neighbors
+            .into_iter()
+            .filter_map(move |(dir, moved, c)| match map.neighbor(&p, &dir) {
+                None => None,
+                Some(p) => map
+                    .range(&dir, &p, moved as usize)
+                    .map(|r| (Point(p, Some((dir, c))), r.sum::<u8>() as u16)),
+            })
     }
 }
 
@@ -81,7 +101,7 @@ pub fn pt_1(str_input: &str) -> Solution {
     // let goal = Pos(h, w);
     let Some((_path, cost)) = astar(
         &Point(Pos(0, 0), None),
-        |p| p.successors(&map, 0, 2),
+        |p| p.successors(&map, 1, 3),
         |p| map[p.0] as u16 + p.0.distance(&goal) as u16,
         |p| p.0 == goal, //(h - 1) && p.0 .1 == (w - 1),
     ) else {
@@ -101,7 +121,7 @@ pub fn pt_2(str_input: &str) -> Solution {
     // let goal = Pos(h, w);
     let Some((_path, cost)) = astar(
         &Point(Pos(0, 0), None),
-        |p| p.successors(&map, 3, 9),
+        |p| p.successors(&map, 4, 10),
         |p| map[p.0] as u16 + p.0.distance(&goal) as u16,
         |p| {
             p.0 == goal
