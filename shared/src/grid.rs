@@ -456,6 +456,12 @@ impl<T> Grid<T> {
     }
 
     #[inline(always)]
+    pub fn neighbors_iter_with_dir(&self, pos: Pos) -> impl Iterator<Item = (Dir, Pos)> + '_ {
+        DIRS.iter()
+            .filter_map(move |dir| self.neighbor(&pos, dir).map(|p| (*dir, p)))
+    }
+
+    #[inline(always)]
     pub fn ipos_neighbors(&self, pos: IPos) -> Vec<Pos> {
         DIRS.iter()
             .filter_map(|dir| self.ipos_neighbor(&pos, dir))
